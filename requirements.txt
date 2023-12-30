@@ -1,0 +1,11 @@
+Flask
+flask-cors
+langchain
+sentence_transformers
+numpy
+bilibili-api-python
+beautifulsoup4
+lxml
+pdfminer
+docx2txt
+wikipedia
