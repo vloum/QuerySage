@@ -1,5 +1,5 @@
 from flask import Flask
-from .embedding import embedding_blueprint
+from .document import document_blueprint
 
 def register_blueprints(app: Flask):
-    app.register_blueprint(embedding_blueprint, url_prefix='/embedding')
+    app.register_blueprint(document_blueprint, url_prefix='/docs')

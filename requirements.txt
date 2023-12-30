@@ -9,3 +9,5 @@ lxml
 pdfminer
 docx2txt
 wikipedia
+unstructured
+pdf2image

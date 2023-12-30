@@ -1,12 +1,13 @@
+import threading
+import logging
 from typing import Any, Dict, List, Callable, List, Tuple
 import concurrent.futures
+import os
 
 from langchain_core.documents import Document
 from langchain.document_loaders import BiliBiliLoader, CSVLoader, DocusaurusLoader, UnstructuredExcelLoader, UnstructuredImageLoader, UnstructuredPowerPointLoader, Docx2txtLoader, WikipediaLoader, PyPDFLoader, TextLoader, UnstructuredWordDocumentLoader
 
 class DocumentLoader(object):
-    def __init__(self, body: Dict[Any]) -> None:
-        pass
     
     def load_document(self, files: List[Dict]) -> List[Document]:
         documents = []
@@ -20,6 +21,10 @@ class DocumentLoader(object):
 
         documents = self.execute_concurrently(tasks)
 
+        # 在新线程中删除文件
+        delete_thread = threading.Thread(target=self.delete_files, args=(files,))
+        delete_thread.start()
+
         return documents
 
     def get_loader(self, file_extension: str) -> Callable:
@@ -28,18 +33,18 @@ class DocumentLoader(object):
             'csv': self.csv,
             'xlsx': self.excel,
             'xls': self.excel,
-            'png': self.image,
-            'jpg': self.image,
-            'jpeg': self.image,
             'ppt': self.ppt,
             'pptx': self.ppt,
-            'doc': self.doc,
             'docx': self.docx,
             'pdf': self.pdf,
             'txt': self.txt,
             'md': self.txt
         }
-        return loaders.get(file_extension, lambda x: ValueError("Unsupported file type"))
+        return loaders.get(file_extension, lambda x: self.un_support_type(file_extension))
+    
+    @staticmethod
+    def un_support_type(ext: str) -> str:
+        return f"Unsupported file type { ext }"
 
     def execute_concurrently(self, tasks: List[Tuple[Callable, str]]) -> List[Any]:
         # 使用线程池并发执行任务
@@ -47,6 +52,16 @@ class DocumentLoader(object):
             futures = [executor.submit(task[0], task[1]) for task in tasks]
             results = [future.result() for future in concurrent.futures.as_completed(futures)]
         return results
+    
+    # 删除文件
+    @staticmethod
+    def delete_files(files: List[Dict]):
+        # 删除文件
+        for file_info in files:
+            try:
+                os.remove(file_info['file_path'])
+            except OSError as e:
+                logging.error(f"Error deleting file {file_info['file_path']}: {e}")
     
     # 网站视频内容加载
     @staticmethod
@@ -87,10 +102,6 @@ class DocumentLoader(object):
     @staticmethod
     def docx(file_path: str) -> List[Document]:
         return Docx2txtLoader(file_path).load()
-    # doc
-    @staticmethod
-    def doc(file_path: str) -> List[Document]:
-        return UnstructuredWordDocumentLoader(file_path).load()
     
     # wiki百科
     @staticmethod
