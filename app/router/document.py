@@ -1,5 +1,6 @@
 from flask import Blueprint
 from app.controller.documents import process_documents
+from app.langchain.chatModels import Chat
 from app.utils import post_data
 
 document_blueprint = Blueprint('document', __name__)
@@ -20,4 +21,6 @@ def docs_query():
 
     documents = process_documents(query=query, files=files)
 
-    return { 'code': 200 }, 200
+    chat_data = Chat.start(query=query, documents=documents)
+
+    return { 'code': 200, 'result': chat_data}, 200

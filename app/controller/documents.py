@@ -33,7 +33,7 @@ def process_documents(query: str, files: List[str])->List[Document]:
     query_embedding = embedding_instance.embed_query(query)
 
     # 计算相关度
-    similarities = maximal_marginal_relevance(query_embedding, embedding_list=content_embeddings, lambda_mult=0)
+    similarities = maximal_marginal_relevance(query_embedding, embedding_list=content_embeddings, lambda_mult=0, k = min(10, len(content_embeddings)))
 
     chat_documents = [ all_split_documents[similarity[0]] for similarity in similarities]
 

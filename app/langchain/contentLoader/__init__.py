@@ -111,7 +111,7 @@ class DocumentLoader(object):
     # pdf文件
     @staticmethod
     def pdf(file_path: str) -> List[Document]:
-        return PyPDFLoader(file_path).load()
+        return PyPDFLoader(file_path, extract_images=True).load()
     
     # md、txt
     @staticmethod

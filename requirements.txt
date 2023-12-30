@@ -1,5 +1,6 @@
 Flask
 flask-cors
+environs
 langchain
 sentence_transformers
 numpy
@@ -11,3 +12,5 @@ docx2txt
 wikipedia
 unstructured
 pdf2image
+simsimd
+openai
