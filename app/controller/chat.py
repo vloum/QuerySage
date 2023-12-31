@@ -23,35 +23,37 @@ class ChatClass(object):
             if len(lists) > 0:
                 documents+=lists
         
-
+        is_had = []
         for doc in documents:
-            document_embeddings.append(np.fromstring(
-                    doc.get('embedding', "").strip("[]"), np.float32, sep=","
-                ))
-            chat_documents.append(
-                Document(
-                    page_content=doc.get('content'),
-                    metadata=doc.get('metadata')
+            if not doc.get('id') in is_had:
+                title_parts = [doc.get('metadata', {}).get(f'Header{i}', '') for i in range(6)]
+                title = '-'.join(filter(None, title_parts))  # 过滤掉空字符串
+                document_embeddings.append(np.fromstring(
+                        doc.get('embedding', "").strip("[]"), np.float32, sep=","
+                    ))
+                chat_documents.append(
+                    Document(
+                        page_content= title + '：' + doc.get('content'),
+                        metadata=doc.get('metadata')
+                    )
                 )
-            )
+
+                is_had.append(doc.get('id'))
 
         query_embedding = Embedding.beg().embed_query(text=query)
 
         similarity_lists = maximal_marginal_relevance(query_embedding=query_embedding, embedding_list=document_embeddings, lambda_mult=0, k=len(document_embeddings))
 
+        sorted_similarities = sorted(similarity_lists, key=lambda x: x[1], reverse=True)
 
-        # 筛选
-        docs = []
-        for similarity in similarity_lists:
-            if similarity[1] > 0.8 and len(docs) < 4:
-                docs.append(chat_documents[similarity[0]])
+        # 选取相似度大于 0.8 的前四个文档
+        docs = [chat_documents[sim[0]] for sim in sorted_similarities if sim[1] > 0.8][:2]
 
-
-        if len(docs) <= 0:
-            docs = Supabase.max_marginal_relevance_search(query=query, k = 2)
+        docs += Supabase.max_marginal_relevance_search(query=query, k = 2)
 
         laws = []
         result = Chat.law(query=query, documents=docs)
+        # result = ''
 
         for document in docs:
             # 使用列表推导式和join来构建标题

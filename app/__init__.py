@@ -3,9 +3,13 @@ import logging
 import traceback
 from flask import Flask, jsonify
 from app.router import register_blueprints
+from flask_cors import CORS
 
 def create_app():
     app = Flask(__name__)
+
+    # 设置跨域
+    CORS(app, origin="*",supports_credentials=True)
 
     # 错误捕获
     @app.errorhandler(404)

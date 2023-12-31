@@ -1,7 +1,7 @@
 
 
 from typing import List
-from langchain_core.documents import Document
+from langchain.docstore.document import Document
 from app.langchain.contentLoader import DocumentLoader
 from app.langchain.contentLoader.split_content import Splitter
 from app.langchain.embedding import Embedding
@@ -10,8 +10,8 @@ from app.langchain.vector.supabase import Supabase
 from app.utils import process_tasks
 
 # 关于法律文档处理
-def process_laws_documents(files: List[str]) -> bool:
-    all_split_documents, documents_contents  = collection_and_split_documents(files=files)
+def process_laws_documents(title: str, files: List[str]) -> bool:
+    all_split_documents, documents_contents  = collection_and_split_documents(files=files, title=title)
 
     # 存入数据库
     Supabase.form_documents(all_split_documents)
@@ -29,7 +29,7 @@ def process_documents(query: str, files: List[str])->List[Document]:
     return chat_documents
 
 # 切割并收集
-def collection_and_split_documents(files: List[str]):
+def collection_and_split_documents(files: List[str], title: str = ''):
     # 收集所有分割好的文档内容
     documents_contents = []
     all_split_documents = []
@@ -40,7 +40,18 @@ def collection_and_split_documents(files: List[str]):
         if isinstance(documents, list):
             split_documents = Splitter.split_documents(documents=documents)
             for doc in split_documents:
-                all_split_documents.append(doc)
+                if title:
+                    all_split_documents.append(
+                      Document(
+                          page_content=doc.page_content,
+                          metadata={
+                              **doc.metadata,
+                              'title': title
+                          }
+                      )
+                    )
+                else:
+                    all_split_documents.append(doc)
                 documents_contents.append(doc.page_content)
         else:
             un_support_file.append(documents)

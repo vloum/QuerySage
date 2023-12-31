@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>文件上传</title>
+</head>
+<body>
+    <h2>文件上传</h2>
+    <form action="http://192.168.1.99:9999/docs/laws" method="post" enctype="multipart/form-data">
+        <label for="title">标题:</label>
+        <input type="text" id="title" name="title"><br><br>
+        <label for="fileUpload">选择文件:</label>
+        <input type="file" id="fileUpload" name="files" multiple><br><br>
+        <input type="submit" value="上传">
+    </form>
+</body>
+</html>

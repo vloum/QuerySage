@@ -20,10 +20,15 @@ def post_data():
 def handle_form_data():
     data = request.values.to_dict()  # 合并表单和查询参数
     files_info = []  # 用于存储所有文件的信息
+    
+    file_list = request.files.getlist('files')
 
+    # 如果没有通过 'files' 字段上传文件，则尝试其他字段
+    if len(file_list) == 0:
+        for file_key in request.files:
+            file_list.append(request.files[file_key])
     # 检查并处理所有上传的文件
-    for file_key in request.files:
-        file = request.files[file_key]
+    for file in file_list:
         temp_dir = os.path.join(os.getcwd(), 'temp')
 
         # 确保临时目录存在

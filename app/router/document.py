@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, render_template
 from app.controller.documents import process_documents, process_laws_documents
 from app.langchain.chatModels import Chat
 from app.utils import post_data
@@ -31,10 +31,15 @@ def import_laws():
     body = post_data()
 
     files = body.get('files', None)
+    title = body.get('title', '')
 
     if not files:
         return { 'code': 4006, 'message': '缺少必要法律文件' }
     
-    result = process_laws_documents(files=files)
+    result = process_laws_documents(title=title, files=files)
 
     return { 'code': 200, 'message': '导入成功'}
+
+@document_blueprint.route('/upload', methods=['GET'])
+def upload_laws():
+    return render_template('/templates/law.html', title='法律文件上传')
