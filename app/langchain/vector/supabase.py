@@ -27,6 +27,13 @@ class InitSu(object):
         )
         pass
     
+    # 模糊查询
+    def search_keyword(self, keyword: str):
+        list = self.client.from_(self.table_name).select('*').like('content', f'%{keyword}%').limit(20).execute()
+        if list:
+            return list.data
+        return []
+    
     # form_documents
     def form_documents(self, documents: List[Document]) -> List:
         return self.vector_store.add_documents(documents=documents)
@@ -34,10 +41,10 @@ class InitSu(object):
     def similarity_documents(self, query: str) -> List[Document]:
         return self.vector_store.similarity_search(query=query)
 
-    def similarity_documents_score(self, query: str) -> List[Document]:
-        return self.vector_store.similarity_search_with_relevance_scores(query)
+    def similarity_documents_score(self, query: str, k: int = 4) -> List[Document]:
+        return self.vector_store.similarity_search_with_relevance_scores(query, k=k)
     
-    def max_marginal_relevance_search(self, query: str) -> List[Document]:
-        return self.vector_store.max_marginal_relevance_search(query)
+    def max_marginal_relevance_search(self, query: str, k: int = 4) -> List[Document]:
+        return self.vector_store.max_marginal_relevance_search(query, k=k)
 
 Supabase = InitSu()

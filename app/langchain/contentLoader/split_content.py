@@ -1,5 +1,6 @@
 
-from typing import Iterable, List
+from typing import List
+import jieba
 from langchain.text_splitter import RecursiveCharacterTextSplitter, MarkdownHeaderTextSplitter
 from langchain_core.documents import Document
 
@@ -14,6 +15,12 @@ class SplitterClass(object):
             is_separator_regex=False,
         )
         pass
+    
+    # 分词
+    def split_word(self, query: str = '') -> List[str]:
+        seg_list = jieba.cut(query, cut_all=False)  # 精确模式
+        seg_list = list(seg_list)
+        return seg_list
     
     def split_documents(self, documents: List[Document])->List[Document]:
         path = documents[0].metadata.get('source', '')

@@ -7,6 +7,7 @@ from app.langchain.contentLoader.split_content import Splitter
 from app.langchain.embedding import Embedding
 from app.langchain.embedding.compute import maximal_marginal_relevance
 from app.langchain.vector.supabase import Supabase
+from app.utils import process_tasks
 
 # 关于法律文档处理
 def process_laws_documents(files: List[str]) -> bool:
@@ -62,3 +63,13 @@ def computed_similarity_documents(all_split_documents: List[Document],documents_
     chat_documents = [ all_split_documents[similarity[0]] for similarity in similarities if similarity[1] > 0.5]
 
     return chat_documents
+
+# 结巴分词，然后数据库模糊查询
+def jie_ba_and_search_documents(query: str)-> List[Document]:
+    word_list = Splitter.split_word(query=query)
+
+    filtered_keywords = [keyword for keyword in word_list if len(keyword) >= 2]
+    # 使用 process_tasks 函数并发执行任务
+    search_documents = process_tasks(filtered_keywords, Supabase.search_keyword)
+
+    return search_documents

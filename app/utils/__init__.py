@@ -1,6 +1,8 @@
 import os
 import time
-from flask import request
+from typing import Callable, Dict, List
+from flask import request, current_app
+from concurrent.futures import ThreadPoolExecutor
 
 def get_data():
     return request.args.to_dict()
@@ -40,3 +42,16 @@ def handle_form_data():
         data['files'] = files_info
 
     return data
+
+
+def process_tasks(items: List[Dict], function: Callable[[Dict], Dict]) -> List[Dict]:
+    app = current_app._get_current_object()
+
+    def task_wrapper(item):
+        with app.app_context():
+            return function(item)
+
+    with ThreadPoolExecutor() as executor:
+        # 使用 map 方法并行处理每个项目
+        results = executor.map(task_wrapper, items)
+        return list(results)
