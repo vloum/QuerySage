@@ -14,7 +14,7 @@ SU_TABLE = env.str('SU_TABLE', '')
 SU_TIMEOUT = env.int('SU_TIMEOUT', 60)
 SU_PASSWORD = env.str('SU_PASSWORD', '')
 SU_SERVICE_KEY = env.str('SU_SERVICE_KEY', '')
-SU_MATCH_FUNCTION = env.str('MATCH_FUNCTION', '')
+SU_MATCH_FUNCTION = env.str('SU_MATCH_FUNCTION', '')
 
 OPEN_BASE_URL = env.str('OPEN_BASE_URL','')
 OPEN_AI_TOKEN = env.str('OPEN_AI_TOKEN', '')
