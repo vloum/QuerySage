@@ -47,7 +47,7 @@ class ChatClass():
         document_prompt = PromptTemplate(
             input_variables=["page_content"], template="{page_content}"
         )
-        stuff_prompt_override = """Given this text extracts:
+        stuff_prompt_override = """Given this content:
         -----
         {context}
         -----

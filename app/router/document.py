@@ -1,5 +1,5 @@
 from flask import Blueprint
-from app.controller.documents import process_documents
+from app.controller.documents import process_documents, process_laws_documents
 from app.langchain.chatModels import Chat
 from app.utils import post_data
 
@@ -24,3 +24,17 @@ def docs_query():
     chat_data = Chat.start(query=query, documents=documents)
 
     return { 'code': 200, 'result': chat_data}, 200
+
+
+@document_blueprint.route('/laws', methods=['POST'])
+def import_laws():
+    body = post_data()
+
+    files = body.get('files', None)
+
+    if not files:
+        return { 'code': 4006, 'message': '缺少必要法律文件' }
+    
+    result = process_laws_documents(files=files)
+
+    return { 'code': 200, 'message': '导入成功'}
