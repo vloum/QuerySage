@@ -6,6 +6,8 @@ from langchain.document_transformers import LongContextReorder
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.callbacks import get_openai_callback
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.pydantic_v1 import BaseModel, Field
 
 from config import OPEN_AI_MODEL, OPEN_BASE_URL, OPEN_AI_TOKEN, OPEN_AI_PROXY, OPEN_AI_ORGANIZATION
 
@@ -71,6 +73,31 @@ class ChatClass:
         Please answer the following question:
         {query}"""
         return self.process_query(query, documents, prompt_template)
+    
+    def chat_split_word(self, query: str = '') -> List[str]:   
 
+        prompt_template = '''
+            "作为专注于中国法律的法律助手，我的角色不仅限于分析输入的句子。我旨在识别并提取与中国法律系统特定的关键词和专业术语，"
+            "同时拓展这些关键词，以揭示更广泛的法律术语和相关概念。这种方法有效地扩大了搜索和检索的范围，提供了对中国法律背景的全面理解。\n"
+            \n{format_instructions}\n{query}\n
+        '''
+
+        parser = JsonOutputParser(pydantic_object=laws_keyword)
+
+        prompt = PromptTemplate(
+            template=prompt_template,
+            input_variables=["query"],
+            partial_variables={"format_instructions": parser.get_format_instructions()},
+        )
+        
+        chain = prompt | self.llm | parser
+
+        result = chain.invoke({"query": query})
+
+        return [result.get('law', ''), result.get('query', '')]
+
+class laws_keyword(BaseModel):
+    law: str = Field(description="包括关键词及其扩展的术语，涉及中国法律法规和文档的广泛概念")
+    query: str = Field(description="从输入查询中提取的显著关键词及其拓展术语，与中国法律相关")
 
 Chat = ChatClass()

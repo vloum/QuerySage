@@ -46,5 +46,8 @@ class InitSu(object):
     
     def max_marginal_relevance_search(self, query: str, k: int = 4) -> List[Document]:
         return self.vector_store.max_marginal_relevance_search(query, k=k)
+    
+    def similarity_return_embedding(self, query: List[float], k: int = 4):
+        return self.vector_store.similarity_search_by_vector_returning_embeddings(query=query,k=k)
 
 Supabase = InitSu()

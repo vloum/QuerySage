@@ -1,7 +1,7 @@
 
 
 import numpy as np
-from app.controller.documents import jie_ba_and_search_documents
+from app.controller.documents import keyword_search_documents
 from app.langchain.chatModels import Chat
 from app.langchain.embedding import Embedding
 from app.langchain.embedding.compute import maximal_marginal_relevance
@@ -13,8 +13,9 @@ class ChatClass(object):
     # 法律问答
     @staticmethod
     def law(query: str):
+        keyword_lists =  Chat.chat_split_word(query)
         # 分词检索 , 这里查询出来的是数据库的数据结构
-        search_documents = jie_ba_and_search_documents(query=query)
+        search_documents = keyword_search_documents(word_list=keyword_lists)
 
         documents = []
         document_embeddings = [] # use embedding
@@ -25,20 +26,17 @@ class ChatClass(object):
         
         is_had = []
         for doc in documents:
-            if not doc.get('id') in is_had:
-                title_parts = [doc.get('metadata', {}).get(f'Header{i}', '') for i in range(6)]
-                title = '-'.join(filter(None, title_parts))  # 过滤掉空字符串
-                document_embeddings.append(np.fromstring(
-                        doc.get('embedding', "").strip("[]"), np.float32, sep=","
-                    ))
+            doc_item = doc[0]
+            if not doc_item.page_content in is_had:
+                document_embeddings.append(doc[2])
                 chat_documents.append(
                     Document(
-                        page_content= title + '：' + doc.get('content'),
-                        metadata=doc.get('metadata')
+                        page_content= doc_item.page_content,
+                        metadata=doc_item.metadata
                     )
                 )
 
-                is_had.append(doc.get('id'))
+                is_had.append(doc_item.page_content)
 
         query_embedding = Embedding.beg().embed_query(text=query)
 
@@ -47,13 +45,10 @@ class ChatClass(object):
         sorted_similarities = sorted(similarity_lists, key=lambda x: x[1], reverse=True)
 
         # 选取相似度大于 0.8 的前四个文档
-        docs = [chat_documents[sim[0]] for sim in sorted_similarities if sim[1] > 0.8][:2]
-
-        docs += Supabase.max_marginal_relevance_search(query=query, k = 2)
+        docs = [chat_documents[sim[0]] for sim in sorted_similarities if sim[1] > 0.8][:4]
 
         laws = []
         result = Chat.law(query=query, documents=docs)
-        # result = ''
 
         for document in docs:
             # 使用列表推导式和join来构建标题

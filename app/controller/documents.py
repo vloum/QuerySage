@@ -76,11 +76,10 @@ def computed_similarity_documents(all_split_documents: List[Document],documents_
     return chat_documents
 
 # 结巴分词，然后数据库模糊查询
-def jie_ba_and_search_documents(query: str)-> List[Document]:
-    word_list = Splitter.split_word(query=query)
+def keyword_search_documents(word_list: List[str])-> List[Document]:
 
-    filtered_keywords = [keyword for keyword in word_list if len(keyword) >= 2]
-    # 使用 process_tasks 函数并发执行任务
-    search_documents = process_tasks(filtered_keywords, Supabase.search_keyword)
+    word_list_embeddings = Supabase.embedding.embed_documents(word_list)
+
+    search_documents = process_tasks(word_list_embeddings, Supabase.similarity_return_embedding)
 
     return search_documents
