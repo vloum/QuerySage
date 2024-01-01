@@ -9,6 +9,8 @@ env_path = '.env.' + mode
 env = Env()
 env.read_env(path=env_path)
 
+EMBEDDING_TYPE = env.str('EMBEDDING_TYPE', '')
+
 SU_URL = env.str('SU_URL', '')
 SU_TABLE = env.str('SU_TABLE', '')
 SU_TIMEOUT = env.int('SU_TIMEOUT', 60)

@@ -64,9 +64,8 @@ def collection_and_split_documents(files: List[str], title: str = ''):
 # 计算筛选存在一定相关度的文本字段
 def computed_similarity_documents(all_split_documents: List[Document],documents_contents: List[str], query: str):
      # 做向量
-    embedding_instance = Embedding.beg()
-    content_embeddings = embedding_instance.embed_documents(documents_contents)
-    query_embedding = embedding_instance.embed_query(query)
+    content_embeddings = Embedding.embed_documents(documents_contents)
+    query_embedding = Embedding.embed_query(query)
 
     # 计算相关度
     similarities = maximal_marginal_relevance(query_embedding, embedding_list=content_embeddings, lambda_mult=0, k = min(10, len(content_embeddings)))
@@ -78,7 +77,7 @@ def computed_similarity_documents(all_split_documents: List[Document],documents_
 # 结巴分词，然后数据库模糊查询
 def keyword_search_documents(word_list: List[str])-> List[Document]:
 
-    word_list_embeddings = Supabase.embedding.embed_documents(word_list)
+    word_list_embeddings = Embedding.embed_documents(word_list)
 
     search_documents = process_tasks(word_list_embeddings, Supabase.similarity_return_embedding)
 

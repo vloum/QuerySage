@@ -1,11 +1,9 @@
 
 
-import numpy as np
 from app.controller.documents import keyword_search_documents
 from app.langchain.chatModels import Chat
 from app.langchain.embedding import Embedding
 from app.langchain.embedding.compute import maximal_marginal_relevance
-from app.langchain.vector.supabase import Supabase
 from langchain.docstore.document import Document
 
 class ChatClass(object):
@@ -38,7 +36,7 @@ class ChatClass(object):
 
                 is_had.append(doc_item.page_content)
 
-        query_embedding = Embedding.beg().embed_query(text=query)
+        query_embedding = Embedding.embed_query(text=query)
 
         similarity_lists = maximal_marginal_relevance(query_embedding=query_embedding, embedding_list=document_embeddings, lambda_mult=0, k=len(document_embeddings))
 
