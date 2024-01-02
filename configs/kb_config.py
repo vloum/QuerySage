@@ -66,7 +66,7 @@ KB_INFO = {
 # 通常情况下不需要更改以下内容
 
 # 知识库默认存储路径
-KB_ROOT_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tmp")
+KB_ROOT_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "temp")
 if not os.path.exists(KB_ROOT_PATH):
     os.mkdir(KB_ROOT_PATH)
 # 数据库默认存储路径。
