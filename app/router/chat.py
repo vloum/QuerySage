@@ -1,6 +1,6 @@
 from flask import Blueprint
 from app.controller.chat import ControllerChat
-from app.langchain.contentLoader.split_content import Splitter
+from app.langchain.document_loader.split_content import Splitter
 from app.langchain.vector.supabase import Supabase
 
 chat_blueprint = Blueprint('chat', __name__)

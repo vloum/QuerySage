@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template
 from app.controller.documents import process_documents, process_laws_documents
 from app.langchain.chatModels import Chat
+from app.langchain.document_loader.utils import KnowledgeFile, files2docs_in_thread
 from app.utils import post_data
 
 document_blueprint = Blueprint('document', __name__)
@@ -35,8 +36,12 @@ def import_laws():
 
     if not files:
         return { 'code': 4006, 'message': '缺少必要法律文件' }
+
+    kb_files = [KnowledgeFile(filename=file_data.get('filename'), knowledge_base_name=body.get('knowledge_name')) for file_data in files]
     
-    result = process_laws_documents(title=title, files=files)
+    # result = process_laws_documents(title=title, files=files)
+
+    result = files2docs_in_thread(files=kb_files)
 
     return { 'code': 200, 'message': '导入成功'}
 

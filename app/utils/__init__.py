@@ -1,8 +1,10 @@
 import os
 import time
-from typing import Callable, Dict, List
+from typing import Any, Callable, Dict, List
 from flask import request, current_app
 from concurrent.futures import ThreadPoolExecutor
+
+from configs.kb_config import KB_ROOT_PATH
 
 def get_data():
     return request.args.to_dict()
@@ -27,9 +29,14 @@ def handle_form_data():
     if len(file_list) == 0:
         for file_key in request.files:
             file_list.append(request.files[file_key])
+    
+    if len(file_list) > 0:
+        data.update({
+            'knowledge_name': data.get('knowledge_name', 'default')
+        })
     # 检查并处理所有上传的文件
     for file in file_list:
-        temp_dir = os.path.join(os.getcwd(), 'temp')
+        temp_dir = os.path.join(os.getcwd(), f'{KB_ROOT_PATH}/' + data.get('knowledge_name'))
 
         # 确保临时目录存在
         if not os.path.exists(temp_dir):
@@ -49,14 +56,13 @@ def handle_form_data():
     return data
 
 
-def process_tasks(items: List[Dict], function: Callable[[Dict], Dict]) -> List[Dict]:
+def run_tasks_in_thread_pool(items: List[Dict], function: Callable[..., Any]) -> List[Any]:
     app = current_app._get_current_object()
 
     def task_wrapper(item):
         with app.app_context():
-            return function(item)
+            return function(**item)  # 使用 **item 以关键字参数形式传递
 
     with ThreadPoolExecutor() as executor:
-        # 使用 map 方法并行处理每个项目
         results = executor.map(task_wrapper, items)
         return list(results)

@@ -2,12 +2,12 @@
 
 from typing import List
 from langchain.docstore.document import Document
-from app.langchain.contentLoader import DocumentLoader
-from app.langchain.contentLoader.split_content import Splitter
+from app.langchain.document_loader import DocumentLoader
+from app.langchain.document_loader.split_content import Splitter
 from app.langchain.embedding import Embedding
 from app.langchain.embedding.compute import maximal_marginal_relevance
 from app.langchain.vector.supabase import Supabase
-from app.utils import process_tasks
+from app.utils import run_tasks_in_thread_pool
 
 # 关于法律文档处理
 def process_laws_documents(title: str, files: List[str]) -> bool:
@@ -79,6 +79,6 @@ def keyword_search_documents(word_list: List[str])-> List[Document]:
 
     word_list_embeddings = Embedding.embed_documents(word_list)
 
-    search_documents = process_tasks(word_list_embeddings, Supabase.similarity_return_embedding)
+    search_documents = run_tasks_in_thread_pool(word_list_embeddings, Supabase.similarity_return_embedding)
 
     return search_documents
