@@ -249,7 +249,7 @@ def get_text_splitter(
         else:
 
             try:  ## 优先使用用户自定义的text_splitter
-                text_splitter_module = importlib.import_module('text_splitter')
+                text_splitter_module = importlib.import_module('app.langchain.document_loader.text_splitter')
                 TextSplitter = getattr(text_splitter_module, splitter_name)
             except:  ## 否则使用langchain的text_splitter
                 text_splitter_module = importlib.import_module('langchain.text_splitter')
@@ -313,7 +313,7 @@ def get_document_loader(loader_name: str, file_path: str, loader_kwargs: Dict = 
     loader_kwargs = loader_kwargs or {}
     try:
         if loader_name in ["RapidOCRPDFLoader", "RapidOCRLoader","FilteredCSVLoader"]:
-            document_loaders_module = importlib.import_module('document_loaders')
+            document_loaders_module = importlib.import_module('app.langchain.document_loader.other')
         else:
             document_loaders_module = importlib.import_module('langchain.document_loaders')
         DocumentLoader = getattr(document_loaders_module, loader_name)

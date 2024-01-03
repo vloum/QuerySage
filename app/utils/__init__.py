@@ -47,7 +47,7 @@ def handle_form_data():
         file.save(file_path)  # 保存文件到临时目录
 
         # 将文件信息添加到列表中
-        files_info.append({'filename': file.filename, 'file_path': file_path})
+        files_info.append({'filename': unique_filename, 'file_path': file_path})
 
     # 如果有文件被上传，更新data字典
     if files_info:
