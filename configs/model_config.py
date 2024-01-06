@@ -1,5 +1,7 @@
 import os
 
+from config import OPEN_BASE_URL, OPEN_AI_TOKEN,OPEN_AI_PROXY, OPEN_AI_MODEL
+
 # 可以指定一个绝对路径，统一存放所有的Embedding和LLM模型。
 # 每个模型可以是一个单独的目录，也可以是某个目录下的二级子目录。
 # 如果模型目录名称和 MODEL_PATH 中的 key 或 value 相同，程序会自动检测加载，无需修改 MODEL_PATH 中的路径。
@@ -28,7 +30,7 @@ EMBEDDING_MODEL_OUTPUT_PATH = "output"
 
 # chatglm3-6b输出角色标签<|user|>及自问自答的问题详见项目wiki->常见问题->Q20.
 
-LLM_MODELS = ["chatglm3-6b", "zhipu-api", "openai-api"]  # "Qwen-1_8B-Chat",
+LLM_MODELS = ["openai-api", "chatglm3-6b", "zhipu-api"]  # "Qwen-1_8B-Chat",
 
 # AgentLM模型的名称 (可以不指定，指定之后就锁定进入Agent之后的Chain的模型，不指定就是LLM_MODELS[0])
 Agent_MODEL = None
@@ -50,10 +52,10 @@ ONLINE_LLM_MODEL = {
     # 线上模型。请在server_config中为每个在线API设置不同的端口
 
     "openai-api": {
-        "model_name": "gpt-3.5-turbo",
-        "api_base_url": "https://api.openai.com/v1",
-        "api_key": "",
-        "openai_proxy": "",
+        "model_name": OPEN_AI_MODEL,
+        "api_base_url": OPEN_BASE_URL,
+        "api_key": OPEN_AI_TOKEN,
+        "openai_proxy": OPEN_AI_PROXY,
     },
 
     # 具体注册及api key获取请前往 http://open.bigmodel.cn

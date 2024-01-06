@@ -1,7 +1,7 @@
 
 
 from app.controller.documents import keyword_search_documents
-from app.langchain.chatModels import Chat
+from app.langchain.chat import Chat
 from app.langchain.embedding import Embedding
 from app.langchain.embedding.compute import maximal_marginal_relevance
 from langchain.docstore.document import Document

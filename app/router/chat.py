@@ -1,22 +1,27 @@
-from flask import Blueprint
-from app.controller.chat import ControllerChat
-from app.langchain.document_loader.split_content import Splitter
-from app.langchain.vector.supabase import Supabase
+from app.langchain.chat.chat_agent import agent_chat
 
-chat_blueprint = Blueprint('chat', __name__)
-from app.utils import post_data
+from fastapi import FastAPI
 
-@chat_blueprint.route('/laws', methods=['POST'])
-def query_laws():
-    body = post_data()
 
-    query = body.get('query', '')
-
-    if not query:
-        return { 'code': 4006, 'message': '缺少必要参数 query or files' }
+def chat_routes(app: FastAPI):
+    app.post("/chat/agent_chat",
+             tags=["Chat"],
+             summary="与agent对话")(agent_chat)
     
-    result = ControllerChat.law(query=query)
 
-    return { 'code': 200, 'data': result }
+# class AgentChatRequest(BaseModel):
+#     query: str
+#     history: List[Any] = []
+#     stream: bool = False
+#     model_name: str = 'default'
+#     temperature: float = 0.7
+#     max_tokens: Optional[int] = None
+#     prompt_name: str = 'default'
 
+# @chat_router.post('/laws')
+# def query_laws(query: str = Body(..., description="查询内容")):
+#     if not query:
+#         raise HTTPException(status_code=400, detail="缺少必要参数 query or files")
 
+#     result = ControllerChat.law(query=query)
+#     return {'code': 200, 'data': result}
