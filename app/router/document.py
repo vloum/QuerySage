@@ -41,9 +41,21 @@ def import_laws():
     
     # result = process_laws_documents(title=title, files=files)
 
-    result = files2docs_in_thread(files=kb_files)
+    results = files2docs_in_thread(files=kb_files)
 
-    return { 'code': 200, 'message': '导入成功'}
+    result_content = []
+    for item in results:
+        docs = item[1][2]
+        content = ''
+        for doc in docs:
+            content+=doc.page_content
+
+        result_content.append({
+            'content': content,
+            'file': item[1][1]
+        })
+
+    return { 'code': 200, 'message': '导入成功', 'result_content': result_content}
 
 @document_blueprint.route('/upload', methods=['GET'])
 def upload_laws():
