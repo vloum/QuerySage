@@ -50,6 +50,12 @@ TEMPERATURE = 0.7
 
 ONLINE_LLM_MODEL = {
     # 线上模型。请在server_config中为每个在线API设置不同的端口
+    "openai-vision":{
+        "model_name": 'gpt-4-vision-preview',
+        "api_base_url": OPEN_BASE_URL,
+        "api_key": OPEN_AI_TOKEN,
+        "openai_proxy": OPEN_AI_PROXY,
+    },
 
     "openai-api": {
         "model_name": OPEN_AI_MODEL,

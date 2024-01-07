@@ -219,7 +219,19 @@ class KnowledgeFile:
                                                 chunk_size=chunk_size,
                                                 chunk_overlap=chunk_overlap,
                                                 text_splitter=text_splitter)
+        
+        # 删掉文件
+        self.delete_file()
+            
         return self.splited_docs
+
+    def delete_file(self):
+        """删除 self.filepath 指向的文件。"""
+        try:
+            os.remove(self.filepath)
+            print(f"文件 {self.filepath} 已被删除。")
+        except FileNotFoundError:
+            print(f"找不到文件 {self.filepath}")
 
     def file_exist(self):
         return os.path.isfile(self.filepath)

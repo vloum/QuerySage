@@ -19,8 +19,11 @@ def parsing_docs(data = Depends(upload_files_dependency)):
     for item in results:
         docs = item[1][2]
         content = ''
-        for doc in docs:
-            content+=doc.page_content
+        if isinstance(docs, list):
+            for doc in docs:
+                content+=doc.page_content
+        else:
+            content = docs
 
         result_content.append({
             'content': content,
