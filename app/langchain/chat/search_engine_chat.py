@@ -1,5 +1,7 @@
 from langchain.utilities.bing_search import BingSearchAPIWrapper
 from langchain.utilities.duckduckgo_search import DuckDuckGoSearchAPIWrapper
+from langchain_community.tools.tavily_search import TavilySearchResults
+
 from configs import (BING_SEARCH_URL, BING_SUBSCRIPTION_KEY, METAPHOR_API_KEY,
                      LLM_MODELS, SEARCH_ENGINE_TOP_K, TEMPERATURE,
                      TEXT_SPLITTER_NAME, OVERLAP_SIZE)
@@ -18,6 +20,8 @@ from typing import List, Optional, Dict
 from app.langchain.chat.utils import History
 from langchain.docstore.document import Document
 import json
+import os
+from config import TAVILY_API_KEY
 from strsimpy.normalized_levenshtein import NormalizedLevenshtein
 from markdownify import markdownify
 
@@ -86,18 +90,28 @@ def metaphor_search(
     return docs
 
 
+def tavily_search(text, result_len=SEARCH_ENGINE_TOP_K, **kwargs):
+    os.environ["TAVILY_API_KEY"] = TAVILY_API_KEY
+    search = TavilySearchResults()
+    return search.invoke({ 'query': text })
+
+
 SEARCH_ENGINES = {"bing": bing_search,
                   "duckduckgo": duckduckgo_search,
                   "metaphor": metaphor_search,
+                  'tavily': tavily_search
                   }
 
 
 def search_result2docs(search_results):
     docs = []
     for result in search_results:
-        doc = Document(page_content=result["snippet"] if "snippet" in result.keys() else "",
-                       metadata={"source": result["link"] if "link" in result.keys() else "",
-                                 "filename": result["title"] if "title" in result.keys() else ""})
+        doc = Document(
+            page_content=result["snippet"] if "snippet" in result.keys() else result.get('content', ''),
+            metadata={
+                    "source": result["link"] if "link" in result.keys() else result.get('url', ''),
+                    "filename": result["title"] if "title" in result.keys() else ""
+                })
         docs.append(doc)
     return docs
 
@@ -115,7 +129,7 @@ async def lookup_search_engine(
 
 
 async def search_engine_chat(query: str = Body(..., description="用户输入", examples=["你好"]),
-                            search_engine_name: str = Body(..., description="搜索引擎名称", examples=["duckduckgo"]),
+                            search_engine_name: str = Body(..., description="搜索引擎名称", examples=["tavily"]),
                             top_k: int = Body(SEARCH_ENGINE_TOP_K, description="检索结果数量"),
                             history: List[History] = Body([],
                                                             description="历史对话",
@@ -137,6 +151,9 @@ async def search_engine_chat(query: str = Body(..., description="用户输入", 
 
     if search_engine_name == "bing" and not BING_SUBSCRIPTION_KEY:
         return BaseResponse(code=404, msg=f"要使用Bing搜索引擎，需要设置 `BING_SUBSCRIPTION_KEY`")
+    
+    if search_engine_name == "tavily" and not TAVILY_API_KEY:
+        return BaseResponse(code=404, msg=f"要使用tavily搜索引擎，需要设置 `TAVILY_API_KEY`")
 
     history = [History.from_data(h) for h in history]
 

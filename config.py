@@ -23,3 +23,7 @@ OPEN_AI_TOKEN = env.str('OPEN_AI_TOKEN', '')
 OPEN_AI_PROXY = env.str('OPEN_AI_PROXY', '')
 OPEN_AI_ORGANIZATION = env.str('OPEN_AI_ORGANIZATION','')
 OPEN_AI_MODEL = env.str('OPEN_AI_MODEL','gpt-3.5-turbo-16k-0613')
+
+BING_SEARCH_KEY = env.str('BING_SEARCH_KEY','')
+
+TAVILY_API_KEY = env.str('TAVILY_API_KEY', '')

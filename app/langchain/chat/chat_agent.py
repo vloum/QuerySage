@@ -57,6 +57,7 @@ async def agent_chat(
         )
 
         model_container.MODEL = model
+        model_container.MODEL_NAME = model_name
 
         prompt_template = get_prompt_template("agent_chat", prompt_name)
         prompt_template_agent = CustomPromptTemplate(

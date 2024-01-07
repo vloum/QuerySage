@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 async def search_engine_iter(query: str):
     response = await search_engine_chat(query=query,
                                          search_engine_name="bing", # 这里切换搜索引擎
-                                         model_name=model_container.MODEL.model_name,
+                                         model_name=model_container.MODEL_NAME,
                                          temperature=0.01, # Agent 搜索互联网的时候，温度设置为0.01
                                          history=[],
                                          top_k = VECTOR_SEARCH_TOP_K,
@@ -18,12 +18,10 @@ async def search_engine_iter(query: str):
 
     contents = ""
 
-    body_iterator = getattr(response, 'body_iterator', None)
-    if body_iterator:
-        async for data in response.body_iterator: # 这里的data是一个json字符串
-            data = json.loads(data)
-            contents = data["answer"]
-            docs = data["docs"]
+    async for data in response.body_iterator: # 这里的data是一个json字符串
+        data = json.loads(data)
+        contents = data["answer"]
+        docs = data["docs"]
 
     return contents
 

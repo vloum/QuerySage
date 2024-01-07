@@ -4,5 +4,6 @@ class ModelContainer:
     def __init__(self):
         self.MODEL = None
         self.DATABASE = None
+        self.MODEL_NAME = ''
 
 model_container = ModelContainer()

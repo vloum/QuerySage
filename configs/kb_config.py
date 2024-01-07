@@ -1,5 +1,5 @@
 import os
-
+from config import BING_SEARCH_KEY
 # 默认使用的知识库
 DEFAULT_KNOWLEDGE_BASE = "samples"
 
@@ -26,8 +26,8 @@ VECTOR_SEARCH_TOP_K = 3
 # 相似文本的得分最高在0.55左右，因此建议针对bge设置得分为0.6
 SCORE_THRESHOLD = 0.6
 
-# 默认搜索引擎。可选：bing, duckduckgo, metaphor
-DEFAULT_SEARCH_ENGINE = "duckduckgo"
+# 默认搜索引擎。可选：bing, duckduckgo, metaphor, tavily
+DEFAULT_SEARCH_ENGINE = "tavily"
 
 # 搜索引擎匹配结题数量
 SEARCH_ENGINE_TOP_K = 3
@@ -44,7 +44,7 @@ BING_SEARCH_URL = "https://api.bing.microsoft.com/v7.0/search"
 
 # 此外，如果是在服务器上，报Failed to establish a new connection: [Errno 110] Connection timed out
 # 是因为服务器加了防火墙，需要联系管理员加白名单，如果公司的服务器的话，就别想了GG
-BING_SUBSCRIPTION_KEY = ""
+BING_SUBSCRIPTION_KEY = BING_SEARCH_KEY
 
 # metaphor搜索需要KEY
 METAPHOR_API_KEY = ""
