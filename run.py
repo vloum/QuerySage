@@ -1,8 +1,10 @@
 import argparse
 from app.langchain.utils import MakeFastAPIOffline
 from configs import OPEN_CROSS_DOMAIN, VERSION, NLTK_DATA_PATH
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 import uvicorn
 import nltk
 
@@ -19,6 +21,8 @@ def create_app(run_mode: str = None):
     )
     MakeFastAPIOffline(app)
 
+    catch_error(app=app)
+
     # Add CORS middleware to allow all origins
     # 在config.py中设置OPEN_DOMAIN=True，允许跨域
     if OPEN_CROSS_DOMAIN:
@@ -32,6 +36,15 @@ def create_app(run_mode: str = None):
 
     mount_app_routes(app, run_mode=run_mode)
     return app
+
+# 错误捕获
+def catch_error(app: FastAPI):
+    @app.exception_handler(RequestValidationError)
+    async def validation_exception_handler(request: Request, exc: RequestValidationError):
+        return JSONResponse(
+            status_code=422,
+            content={"detail": exc.errors(), "body": await request.json()},
+        )
 
 # 主程序入口
 if __name__ == "__main__":
