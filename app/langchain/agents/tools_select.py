@@ -52,6 +52,14 @@ tools = [
         description="use this tools to search youtube videos",
         args_schema=YoutubeInput,
     ),
+    Tool.from_function(
+        func=dalle_image_generator,
+        name="dalle_image_generator",
+        description="use this tools to painting",
+        args_schema=DalleImageGeneratorInput,
+    ),
 ]
 
 tool_names = [tool.name for tool in tools]
+
+print('tool_names--', tool_names)

@@ -12,7 +12,7 @@ def parsing_docs(data = Depends(upload_files_dependency)):
         return { 'code': 4006, 'message': '缺少文件' }
 
     kb_files = [KnowledgeFile(filename=file_data.get('filename'), knowledge_base_name=data.get('knowledge_name')) for file_data in files]
-    
+
     results = files2docs_in_thread(files=kb_files)
 
     result_content = []

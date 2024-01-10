@@ -12,7 +12,6 @@ def mount_app_routes(app: FastAPI, run_mode: str = None):
     document_router(app)
 
 
-
 def document_router(app: FastAPI):
     prefix_path = '/docs'
 
