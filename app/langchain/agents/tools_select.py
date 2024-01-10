@@ -55,7 +55,7 @@ tools = [
     Tool.from_function(
         func=dalle_image_generator,
         name="dalle_image_generator",
-        description="use this tools to painting",
+        description="Activate the painting function of this tool to create an artistic illustration",
         args_schema=DalleImageGeneratorInput,
     ),
 ]
