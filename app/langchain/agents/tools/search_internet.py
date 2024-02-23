@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 
 async def search_engine_iter(query: str):
     response = await search_engine_chat(query=query,
-                                         search_engine_name="bing", # 这里切换搜索引擎
+                                         search_engine_name="tavily", # 这里切换搜索引擎
                                          model_name=model_container.MODEL_NAME,
                                          temperature=0.01, # Agent 搜索互联网的时候，温度设置为0.01
                                          history=[],

@@ -19,14 +19,17 @@ def parsing_docs(data = Depends(upload_files_dependency)):
     for item in results:
         docs = item[1][2]
         content = ''
+        splitter = []
         if isinstance(docs, list):
             for doc in docs:
-                content+=doc.page_content
+                splitter.append(doc.page_content)
+                # content+=doc.page_content
         else:
             content = docs
 
         result_content.append({
             'content': content,
+            'splitter': splitter,
             'file': item[1][1]
         })
 

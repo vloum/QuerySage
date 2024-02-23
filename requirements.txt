@@ -39,3 +39,7 @@ pyMuPDF
 nltk
 
 aiofiles
+numexpr
+
+
+cos-python-sdk-v5

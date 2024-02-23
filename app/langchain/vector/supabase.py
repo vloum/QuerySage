@@ -1,5 +1,5 @@
 
-from typing import List
+from typing import Dict, List
 from langchain.docstore.document import Document
 from langchain.vectorstores.supabase import SupabaseVectorStore
 from supabase.client import Client, create_client
@@ -13,8 +13,16 @@ class InitSu(object):
     vector_store: SupabaseVectorStore
     table_name: str = SU_TABLE
     query_name: str = SU_MATCH_FUNCTION
-    def __init__(self) -> None:
-        self.client : Client = create_client(SU_URL, SU_SERVICE_KEY, ClientOptions(postgrest_client_timeout=SU_TIMEOUT))
+    def __init__(self, init_data: Dict) -> None:
+        # 初始化连接
+        self.table_name = init_data.get('table_name', SU_TABLE)
+        self.query_name = init_data.get('query_name', SU_MATCH_FUNCTION)
+
+        url = init_data.get('url', SU_URL)
+        service_key = init_data.get('service_key', SU_SERVICE_KEY)
+        time_out = init_data.get('time_out', SU_TIMEOUT)
+
+        self.client : Client = create_client(url, service_key, ClientOptions(postgrest_client_timeout=time_out))
         # 初始化
         self.vector_store = SupabaseVectorStore(
             client=self.client,
