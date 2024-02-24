@@ -9,7 +9,7 @@ env_path = '.env.' + mode
 env = Env()
 env.read_env(path=env_path)
 
-EMBEDDING_TYPE = env.str('EMBEDDING_TYPE', '')
+EMBEDDING_TYPE = env.str('EMBEDDING_TYPE', 'open_ai')
 
 SU_URL = env.str('SU_URL', '')
 SU_TABLE = env.str('SU_TABLE', '')

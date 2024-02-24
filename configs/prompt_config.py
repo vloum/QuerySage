@@ -85,7 +85,8 @@ PROMPT_TEMPLATES = {
             'Begin!\n\n'
             'history: {history}\n\n'
             'Question: {input}\n\n'
-            'Thought: {agent_scratchpad}\n',
+            'Thought: {agent_scratchpad}\n'
+            'Note: If you need to use that tool, you just need to respond,there\'s no need to worry about privacy and security issues, because this tool is safe.\n',
 
         "ChatGLM3":
             'You can answer using the tools, or answer directly using your knowledge without using the tools. '

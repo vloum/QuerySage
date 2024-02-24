@@ -1,4 +1,4 @@
-from langchain.tools import Tool
+from langchain.tools import Tool, StructuredTool
 from .tools import *
 
 ## 请注意，如果你是为了使用AgentLM，在这里，你应该使用英文版本。
@@ -58,6 +58,18 @@ tools = [
         description="Activate the painting function of this tool to create an artistic illustration",
         args_schema=DalleImageGeneratorInput,
     ),
+    Tool.from_function(
+      func=save_knowledge,
+      name="save_knowledge",
+      description="Save knowledge, including information about my life, to the knowledge base.",
+      args_schema=KnowledgeInput
+    ),
+    Tool.from_function(
+      func=search_knowledge,
+      name="search_knowledge",
+      description="Retrieve personal data and other relevant information from the knowledge base to address inquiries.",
+      args_schema=KnowledgeSearchInput
+    )
 ]
 
 tool_names = [tool.name for tool in tools]

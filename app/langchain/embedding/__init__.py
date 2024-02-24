@@ -21,9 +21,10 @@ class EmbeddingStore(object):
             model_name=model_name, model_kwargs=model_kwargs, encode_kwargs=encode_kwargs
         )
     
-    def open_ai() -> OpenAIEmbeddings:
+    def open_ai(self) -> OpenAIEmbeddings:
         return OpenAIEmbeddings(
             base_url=OPEN_BASE_URL,
+            model='text-embedding-3-small',
             api_key=OPEN_AI_TOKEN,
             openai_proxy=OPEN_AI_PROXY,
             organization=OPEN_AI_ORGANIZATION,

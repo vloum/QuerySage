@@ -1,4 +1,5 @@
-from fastapi import Body
+import time
+from fastapi import Body, Depends
 from langchain.memory import ConversationBufferWindowMemory
 
 from app.langchain.agents.tools_select import tools, tool_names
@@ -6,6 +7,7 @@ from app.langchain.agents.callbacks import CustomAsyncIteratorCallbackHandler, S
 from langchain.agents import LLMSingleActionAgent, AgentExecutor
 from app.langchain.agents.custom_template import CustomOutputParser, CustomPromptTemplate
 from sse_starlette.sse import EventSourceResponse
+from app.utils.verify_token import verify_token
 from configs import LLM_MODELS, TEMPERATURE, HISTORY_LEN, Agent_MODEL
 from app.langchain.utils import wrap_done, get_ChatOpenAI, get_prompt_template
 from langchain.chains import LLMChain
@@ -15,6 +17,8 @@ from typing import List
 from app.langchain.chat.utils import History
 import json
 from app.langchain.agents.model_contain import model_container
+
+from app.utils.verify_token import token_var
 
 
 async def agent_chat(
@@ -93,7 +97,7 @@ async def agent_chat(
             try:
                 task = asyncio.create_task(wrap_done(
                     agent_executor.acall(
-                        query, callbacks=[callback], include_run_info=True),
+                        query, callbacks=[callback], include_run_info=True, tags=[token_var.get()], metadata={'token': token_var.get()}),
                     callback.done))
                 break
             except:

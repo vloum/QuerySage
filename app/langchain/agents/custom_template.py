@@ -1,4 +1,5 @@
 from __future__ import annotations
+import threading
 from langchain.agents import Tool, AgentOutputParser
 from langchain.prompts import StringPromptTemplate
 from typing import List
@@ -6,6 +7,8 @@ from langchain.schema import AgentAction, AgentFinish
 
 from configs import SUPPORT_AGENT_MODEL
 from app.langchain.agents.model_contain import model_container
+from app.utils.verify_token import create_agent_token, token_var
+
 class CustomPromptTemplate(StringPromptTemplate):
     template: str
     tools: List[Tool]
@@ -53,6 +56,11 @@ class CustomOutputParser(AgentOutputParser):
 
         action = parts[1].split("Action Input:")[0].strip()
         action_input = parts[1].split("Action Input:")[1].strip()
+
+        # 如果是存知识,需要带上 token
+        if 'knowledge' in action:
+            action_input = f"{action_input}{create_agent_token()}"
+
         try:
             ans = AgentAction(
                 tool=action,
