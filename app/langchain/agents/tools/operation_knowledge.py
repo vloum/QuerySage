@@ -84,7 +84,10 @@ def search_knowledge(query: str, k: int = 4):
         # 搜索文档
         result = Knowledge_db.similarity_documents_score(query, k, filter=filter)
 
-        content = '这是知识库相关内容：\n'
+        if len(result) == 0:
+            return '知识库没有相关内容'
+
+        content = '这是知识库找到的信息：\n'
         for item in result:
             doc = item[0]
             content += f"{doc.page_content}\n"
@@ -129,6 +132,7 @@ def chat_save_data(query: str)-> Dict:
         data = Chat.llm.invoke(query, functions=[function], function_call={"name": "FunctionCall"})
 
         additional_kwargs = data.additional_kwargs
+        print('additional_kwargs:', additional_kwargs)
         return parsing_query_to_json(additional_kwargs['function_call']['arguments'])
     except Exception as e:
         return {'save_type': 'other', 'file_data': {}}

@@ -3,6 +3,11 @@ from langchain.prompts.chat import ChatMessagePromptTemplate
 from configs import logger, log_verbose
 from typing import List, Tuple, Dict, Union
 
+def set_system_user(user: str) -> str:
+    """
+    设置系统用户
+    """
+    return f'你的名字是「{user}」，由vlou开发。'
 
 class History(BaseModel):
     """

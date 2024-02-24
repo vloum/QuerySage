@@ -1,6 +1,7 @@
 import time
 from fastapi import Body, Depends
 from langchain.memory import ConversationBufferWindowMemory
+from langchain_core.messages import SystemMessage
 
 from app.langchain.agents.tools_select import tools, tool_names
 from app.langchain.agents.callbacks import CustomAsyncIteratorCallbackHandler, Status
@@ -14,7 +15,7 @@ from langchain.chains import LLMChain
 from typing import AsyncIterable, Optional
 import asyncio
 from typing import List
-from app.langchain.chat.utils import History
+from app.langchain.chat.utils import History, set_system_user
 import json
 from app.langchain.agents.model_contain import model_container
 
@@ -73,6 +74,10 @@ async def agent_chat(
         llm_chain = LLMChain(llm=model, prompt=prompt_template_agent)
         # 把history转成agent的memory
         memory = ConversationBufferWindowMemory(k=HISTORY_LEN * 2)
+
+        # 最开始可以设定角色
+        # memory.chat_memory.add_message(SystemMessage(content=set_system_user('vlou')))
+
         for message in history:
             # 检查消息的角色
             if message.role == 'user':
