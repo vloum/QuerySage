@@ -81,7 +81,7 @@ PROMPT_TEMPLATES = {
             'Observation: the result of the action\n'
             '... (this Thought/Action/Action Input/Observation can be repeated zero or more times)\n'
             'Thought: I now know the final answer\n'
-            'Final Answer: the final answer to the original input question\n'
+            'Final Answer: the final answer to the original input question.\n'
             'Begin!\n\n'
             'history: {history}\n\n'
             'Question: {input}\n\n'
