@@ -10,4 +10,4 @@ from .wolfram import wolfram, WolframInput
 from .search_youtube import search_youtube, YoutubeInput
 from .arxiv import arxiv, ArxivInput
 from .dalle_image_generator import dalle_image_generator, DalleImageGeneratorInput
-from .operation_knowledge import save_knowledge, KnowledgeInput,search_knowledge, KnowledgeSearchInput
+from .operation_knowledge import save_knowledge, KnowledgeInput,search_knowledge, KnowledgeSearchInput, query_big_file, BigFileChatInput

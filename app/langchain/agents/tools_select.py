@@ -69,6 +69,12 @@ tools = [
       name="search_knowledge",
       description="Retrieve personal data and other relevant information from the knowledge base to address inquiries.",
       args_schema=KnowledgeSearchInput
+    ),
+    Tool.from_function(
+      func=query_big_file,
+      name="query_big_file",
+      description="Large File Inspection and Correction Expert, used for retrieving information from large files and conducting in-depth review and error correction. Large File Inspection and Correction Expert, used for retrieving information from large files and conducting in-depth review and error correction. The input format must be in YAML. For example:\n\n```yaml\nfile_id: xxx\nquestion: xxx",
+      args_schema=BigFileChatInput
     )
 ]
 

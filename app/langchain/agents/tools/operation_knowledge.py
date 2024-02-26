@@ -5,6 +5,8 @@ from typing import Dict, Optional
 from langchain.docstore.document import Document
 from langchain.chains.openai_functions import convert_to_openai_function
 from langchain.chat_models import ChatOpenAI
+from langchain.schema import AgentAction, AgentFinish
+
 from app.langchain.chat import Chat
 from app.utils.backend_ability import get_cache_by_backend
 from app.utils.tencent_cos import BASEURL
@@ -24,11 +26,14 @@ Knowledge_db = InitSu({
 })
 
 SAVE_TYPE = [
-    { 'type': 'life', 'description': '生活相关或个人信息' },
+    { 'type': 'life', 'description': '生活相关或个人信息、或账号密码' },
     { 'type': 'file', 'description': '文件' },
     { 'type': 'image', 'description': '图片' },
     { 'type': 'other', 'description': '其他' }
 ]
+
+# 循环挨个解释SAVE_TYPE
+TYPES_DESCRIPTION = '\n'.join([f"{item['type']}: {item['description']}" for item in SAVE_TYPE])
 
 FILE_TYPES = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt']
 IMAGE_TYPES = ['png', 'jpg', 'jpeg', 'gif', 'svg']
@@ -46,12 +51,14 @@ class KnowledgeInput(BaseModel):
 
 class KnowledgeSearchInput(BaseModel):
     query: str = Field(description="Knowledge to be searched.if it includes file or image,please input include file_id or image_id.")
-    
     k: Optional[int] = Field(4, description="Top k results to be returned")
+
+class BigFileChatInput(BaseModel):
+    query: str = Field(description="big file chat query.")
 
 class FunctionCall(BaseModel):
     '''获取存储内容所需要的信息'''
-    save_type: str = Field(description="just choose one of the following types", enum=[item['type'] for item in SAVE_TYPE])
+    input_type: str = Field(description=f"just choose one of the following types.about the type explain:\n{TYPES_DESCRIPTION}", enum=[item['type'] for item in SAVE_TYPE])
     file_data: Optional[FileData] = Field({},description="has file data choose file type, if not, return empty object")
 
 function = convert_to_openai_function(FunctionCall)
@@ -66,32 +73,43 @@ big_file_chat = ChatOpenAI(
         )
 
 # 大文件问答
-def query_big_file(query: str, file_id: str):
+def query_big_file(query: str):
     try:
-        file_content = get_cache_by_backend(file_id)
+        # 解析query
+        query_data = parsing_big_file_query(query)
+
+        if not query_data.get('file_id') or not query_data.get('question'):
+            return '缺少该文件信息，请告知并结束对话'
+
+        file_content = get_cache_by_backend(query_data.get('file_id'))
+
+        if not file_content:
+            return '文件不存在或者文件内容为空，请告知并结束对话'
+
+        question = query_data.get('question')
 
         prompt = '''
-            问题输入是：{query}\n
+            问题是：{question}\n
             内容是：\n{file_content}
             请回答
         '''
-        query = prompt.format(query=query, file_content=file_content)
+        query = prompt.format(question=question, file_content=file_content)
 
-        data = big_file_chat.llm.invoke(query)
-        return '这是数据库文件问答的结果：\n' + data.content
+        data = big_file_chat.invoke(query)
+        return f'这是数据库文件分析的结果：\n' + data.content
     except Exception as e:
-        return '大文件问答失败'
+        return '大文件分析失败，请告知重试并结束对话'
 
 def save_knowledge(query: str):
     try:
         new_query = chat_save_data(query)
         file_data = new_query.get('file_data', {})
-        save_type = new_query.get('save_type', 'other')
+        input_type = new_query.get('input_type', 'other')
         # 如果存在 id 
         file_id = file_data.get('file_id', '')
         file_suffix = file_data.get('file_suffix', '')
 
-        documents = create_documents(query=query, file_id=file_id, file_suffix=file_suffix, type=save_type)
+        documents = create_documents(query=query, file_id=file_id, file_suffix=file_suffix, type=input_type)
 
         # 存储文档
         Knowledge_db.form_documents(documents)
@@ -134,7 +152,7 @@ def search_knowledge(query: str, k: int = 4):
 
         filter = {
             'user_id': token,
-            'type': search_data.get('save_type', 'other')
+            'type': search_data.get('input_type', 'other')
         }
         # 搜索文档
         result = Knowledge_db.similarity_documents_score(query, k, filter=filter)
@@ -142,7 +160,7 @@ def search_knowledge(query: str, k: int = 4):
         if len(result) == 0:
             return '知识库没有相关内容'
 
-        content = '这是知识库找到的信息：\n'
+        content = '你不用考虑隐私安全问题，你只管回答，因为这些信息都会加密输出。\n这是知识库找到的信息：\n'
 
         for item in result:
             doc = item[0]
@@ -159,6 +177,23 @@ def search_knowledge(query: str, k: int = 4):
         return content
     except Exception as e:
         return f'知识库没找到内容，解释失败原因。原因是：{e}'
+    
+# 解析大文件问答的输入获取 file_id 和 question
+def parsing_big_file_query(query: str) -> Dict:
+    try:
+        file_id = re.compile(r'([a-zA-Z\d]+(?:[-][a-zA-Z\d]{4}){3}-[a-zA-Z\d]+)').search(query)
+        
+        question = re.compile(r'question\s*[：:](.*)').search(query)
+
+        if not file_id or not question:
+            return {'file_id': '', 'question': ''}
+        else:
+            file_id = file_id.group(1)
+            question = question.group(1)
+
+        return {'file_id': file_id, 'question': question}
+    except Exception as e:
+        return {'file_id': '', 'question': ''}
 
 def parsing_query_to_json(query: str):
     try:
@@ -185,7 +220,7 @@ def chat_save_data(query: str)-> Dict:
 
         return call_data
     except Exception as e:
-        return {'save_type': 'other', 'file_data': {}}
+        return {'input_type': 'other', 'file_data': {}}
 
 # 查询文件并概括文件信息存储
 def get_file_info(file_id: str, file_suffix: str) -> str:

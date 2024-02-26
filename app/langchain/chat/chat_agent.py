@@ -70,13 +70,14 @@ async def agent_chat(
             tools=tools,
             input_variables=["input", "intermediate_steps", "history"]
         )
+
         output_parser = CustomOutputParser()
         llm_chain = LLMChain(llm=model, prompt=prompt_template_agent)
         # 把history转成agent的memory
         memory = ConversationBufferWindowMemory(k=HISTORY_LEN * 2)
 
         # 最开始可以设定角色
-        # memory.chat_memory.add_message(SystemMessage(content=set_system_user('vlou')))
+        memory.chat_memory.add_message(SystemMessage(content=set_system_user('vlou')))
 
         for message in history:
             # 检查消息的角色
