@@ -2,7 +2,7 @@ from app.langchain.document_loader.utils import KnowledgeFile, files2docs_in_thr
 
 from fastapi import Depends
 
-from app.utils import get_md_format, upload_files_dependency
+from app.utils import get_md_format, process_upload_file, upload_files_dependency
 from app.utils.backend_ability import get_cache_by_backend, save_cache_by_backend
 from app.utils.tencent_cos import BUCKET, REGION
 
@@ -45,3 +45,36 @@ def parsing_docs(data = Depends(upload_files_dependency)):
     
 
     return { 'code': 200, 'message': '导入成功', 'files': result_content}
+
+
+def parsing_file(data = Depends(process_upload_file)):
+    file = data.get('file_path', None)
+
+    if not file:
+        return { 'code': 4006, 'message': '缺少文件' }
+    
+    try:
+        kb_files = [KnowledgeFile(filename=file_data.get('filename'), knowledge_base_name=data.get('knowledge_name')) for file_data in [data]]
+
+        results = files2docs_in_thread(files=kb_files)
+
+        result = []
+
+        for index, item in enumerate(results):
+            docs = item[1][2]
+            content = ''
+            splitter = []
+            if isinstance(docs, list):
+                for doc in docs:
+                    # splitter.append(doc.page_content)
+                    content+=doc.page_content
+            else:
+                content = docs
+
+            result.append(content)
+
+        return { 'code': 200, 'message': '导入成功', 'file': result }
+    except Exception as e:
+        return { 'code': 40007, 'message': '解析失败' }
+
+

@@ -2,7 +2,7 @@
 from fastapi import FastAPI, Depends
 
 from app.router.chat import chat_routes
-from app.router.document import parsing_docs
+from app.router.document import parsing_docs, parsing_file
 from app.utils.verify_token import verify_token
 
 def mount_app_routes(app: FastAPI, run_mode: str = None):
@@ -20,3 +20,7 @@ def document_router(app: FastAPI):
              dependencies=[Depends(verify_token)],
              tags=["docs"],
              summary="文档解析")(parsing_docs)
+
+    app.post(f'{prefix_path}/parsing_file',
+                tags=["docs"],
+                summary="文档解析")(parsing_file)

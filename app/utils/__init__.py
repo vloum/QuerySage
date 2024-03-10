@@ -40,6 +40,21 @@ async def upload_files_dependency(knowledge_name: str = Form(...), files: List[U
 
     return data
 
+async def process_upload_file(file: UploadFile = File(...)):
+    if not file:
+        return { "file_path": None}
+    file_id = uuid.uuid4()
+    file_path, file_name = parsing_path_file(file.filename, file_id)
+
+    # unique_filename = f"{int(time.time())}_{file.filename}"
+    file_path = os.path.join(KB_ROOT_PATH, file_name)
+
+    async with aiofiles.open(file_path, 'wb') as out_file:
+        content = await file.read()
+        await out_file.write(content)
+
+    return {'filename': file_name, 'origin_name': file.filename, 'file_path': file_path, 'knowledge_name': ''}
+
 # 判断文件后缀返回对应的 md 格式
 def get_md_format(ext: str, file_path: str, description: str, file_name: str):
     if ext in ['png', 'jpg', 'jpeg', 'gif']:
